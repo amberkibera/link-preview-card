@@ -21,12 +21,13 @@ export class LinkPreviewCard extends DDDSuper(I18NMixin(LitElement)) {
   constructor() {
     super();
     this.title = "";
-    this.t = this.t || {};
-    this.t = {
-      ...this.t,
-      title: "Title",
-    };
-    this.url = "https://hax.psu.edu"
+    this.href = "";
+    this.description = "";
+    this.image = "";
+    this.link = "";
+    this.themeColor = "";
+    this.loadingState = false;
+
     this.registerLocalization({
       context: this,
       localesPath:
@@ -41,10 +42,12 @@ export class LinkPreviewCard extends DDDSuper(I18NMixin(LitElement)) {
     return {
       ...super.properties,
       title: { type: String },
-      url: { type: String },
-      loading: { type: Boolean, reflect: true },
-      items: { type: Array, },
-      value: { type: String },
+      href: { type: String },
+      description: { type: String },
+      image: { type: String },
+      link: { type: String },
+      themeColor: { type: String },
+      loadingState: { type: Boolean, reflect: true, attribute: "loading-state" },
     };
   }
 
@@ -57,37 +60,140 @@ export class LinkPreviewCard extends DDDSuper(I18NMixin(LitElement)) {
         color: var(--ddd-theme-primary);
         background-color: var(--ddd-theme-accent);
         font-family: var(--ddd-font-navigation);
+        border-radius: 8px;
+        padding: 10px;
+        max-width: 400px;
+        border: 2px solid var(--themeColor);
       }
-      .wrapper {
-        margin: var(--ddd-spacing-2);
-        padding: var(--ddd-spacing-4);
+      :host(:hover) {
+  transform: translateY(-8px);
+       }
+
+      .preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+       }
+
+      img {
+  display: block;
+  max-width: 85%;
+  height: auto;
+  margin: 0 auto;
+  border-radius: 12px;
+  border: 3px solid var(--themeColor);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+       }
+
+      .content {
+  margin-top: 14px;
+  padding: 0 12px;
+       }
+
+      .title {
+  font-weight: 700;
+  font-size: 1.3rem;
+  margin: 16px 0;
+  color: var(--themeColor);
+  text-transform: uppercase;
+       }
+
+      details {
+  border: 2px solid var(--themeColor);
+  border-radius: 10px;
+  text-align: center;
+  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.1);
+  height: auto;
+  overflow: hidden;
+       }
+
+      details summary {
+  font-size: 18px;
+  padding: 10px 0;
+  cursor: pointer;
+  font-weight: 600;
+       }
+
+      .desc {
+  font-size: 1rem;
+  color: white;
+  margin: 12px 0;
+       }
+
+      .url {
+  display: inline-block;
+  padding: 10px 14px;
+  margin: 10px auto;
+  font-weight: bold;
+  font-size: 1rem;
+  color: #fff;
+  border: 2px solid var(--themeColor);
+  border-radius: 10px;
+  transition: all 0.3s ease-in-out;
+  background-color: transparent;
+       }
+
+      .url:hover {
+  background-color: var(--themeColor);
+  color: #000;
+  transform: scale(1.05);
+       }
+
+      .loading-spinner {
+  margin: 24px auto;
+  border: 4px solid #ddd;
+  border-top: 4px solid var(--themeColor);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  animation: spin 1.5s linear infinite;
+       }
+
+      @keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
       }
-      h3 span {
-        font-size: var(--link-preview-card-label-font-size, var(--ddd-font-size-s));
-      }
-    `];
+
+      @media (max-width: 600px) {
+  :host {
+    max-width: 100%;
+    padding: 12px;
+       }
+     }
+  `];
+  }
+   handleClick() {
+    let inputValue = this.shadowRoot.querySelector("#textInput").value;
+    this.fetchData(inputValue);
   }
 
   // Lit render the HTML
   render() {
     return html`
-    
-     <h2>${this.title}</h2>
-     <details open>
-       <summary>Search inputs</summary>
-       <div>
-         <input id="input" placeholder="Search Google images" @input="${this.inputChanged}" />
-       </div>
-     </details>
-     <div class="results">
-       ${this.items.map((item, index) => html`
-       <nasa-image
-         source="${item.links[0].href}"
-         title="${item.data[0].title}"
-       ></nasa-image>
-       `)}
-     </div>
-     `;
+      <input type="text" id="textInput" placeholder="Enter text here">
+      <button @click="${this.handleClick}">Submit</button>
+      <div class="preview" style="--themeColor: ${this.themeColor}" part="preview">
+        ${this.loadingState
+          ? html`<div class="loading-spinner" part="loading-spinner"></div>`
+          : html`
+            ${this.image ? html`<img src="${this.image}" alt="" @error="${this.handleImageError}" part="image" />` : ''}
+            <div class="content" part="content">
+              <h3 class="title" part="title">${this.title}</h3>
+              <details part="details">
+                <summary part="summary">Description</summary>
+                <p class="desc" part="desc">${this.description}</p>
+              </details>
+              <a href="${this.link}" target="_blank" class="url" part="url">Visit Site</a>
+            </div>
+        `}
+      </div>
+    `;
   }
 
   inputChanged(e) {
@@ -96,28 +202,37 @@ export class LinkPreviewCard extends DDDSuper(I18NMixin(LitElement)) {
   // life cycle will run when anything defined in `properties` is modified
   updated(changedProperties) {
     // see if value changes from user input and is not empty
-    if (changedProperties.has('value') && this.value) {
-      this.updateResults(this.value);
-    }
-    else if (changedProperties.has('value') && !this.value) {
-      this.items = [];
-    }
-    // @debugging purposes only
-    if (changedProperties.has('items') && this.items.length > 0) {
-      console.log(this.items);
+    if (changedProperties.has("href") && this.href) {
+      this.fetchData(this.href);
     }
   }
 
-  updateResults(value) {
-    this.loading = true;
-    fetch(`https://open-apis.hax.cloud/api/services/website/metadata?q=${this.url}`).then(d => d.ok ? d.json(): {}).then(data => {
-      if (data.collection) {
-        this.items = [];
-        this.items = data.collection.items;
-        this.loading = false;
-        this.requestUpdate();
-      }  
-    });
+  async fetchData(link) {
+    this.loadingState = true;
+    const url = `https://open-apis.hax.cloud/api/services/website/metadata?q=${link}`;
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Response Status: ${response.status}`);
+      }
+      
+      const json = await response.json();
+
+      this.title = json.data["og:title"] || json.data["title"] || "No Title Available";
+      this.description = json.data["description"] || "No Description Available";
+      this.image = json.data["image"] || json.data["logo"] || json.data["og:image"] || "";
+      this.link = json.data["url"] || link;
+      this.themeColor = json.data["theme-color"] || this.defaultTheme();
+    } catch (error) {
+      console.error("Error fetching metadata:", error);
+      this.title = "No Preview Available";
+      this.description = "";
+      this.image = "";
+      this.link = "";
+      this.themeColor = this.defaultTheme();
+    } finally {
+      this.loadingState = false;
+    }
   }
   /**
    * haxProperties integration via file reference
