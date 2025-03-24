@@ -60,10 +60,10 @@ export class LinkPreviewCard extends DDDSuper(I18NMixin(LitElement)) {
         color: var(--ddd-theme-primary);
         background-color: var(--ddd-theme-accent);
         font-family: var(--ddd-font-navigation);
-        border-radius: 8px;
-        padding: 10px;
-        max-width: 400px;
-        border: 2px solid var(--themeColor);
+        border-radius: --ddd-radius-sm;
+        padding: --ddd-spacing-3;
+        max-width: --ddd-border-sm;
+        border: --ddd-border-sm;
       }
       :host(:hover) {
   transform: translateY(-8px);
@@ -80,72 +80,72 @@ export class LinkPreviewCard extends DDDSuper(I18NMixin(LitElement)) {
   display: block;
   max-width: 85%;
   height: auto;
-  margin: 0 auto;
-  border-radius: 12px;
-  border: 3px solid var(--themeColor);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  margin:  var(--ddd-spacing-0) auto;
+  border-radius: --ddd-radius-md;
+  border: --ddd-border-md;
+  box-shadow: --ddd-boxShadow-sm;
        }
 
       .content {
-  margin-top: 14px;
-  padding: 0 12px;
+  margin-top: --ddd-spacing-4;
+  padding: 0 var(--ddd-spacing-3);
        }
 
       .title {
-  font-weight: 700;
-  font-size: 1.3rem;
-  margin: 16px 0;
-  color: var(--themeColor);
+  font-weight: --ddd-font-size-bold;
+  font-size: var(--ddd-font-size-md);
+  margin: var(--ddd-spacing-4) 0;
+  color: var(--ddd-color-primary);
   text-transform: uppercase;
        }
 
       details {
-  border: 2px solid var(--themeColor);
-  border-radius: 10px;
+  border:--ddd-border-sm;
+  border-radius: --ddd-radius-md;
   text-align: center;
-  padding: 10px;
-  background-color: rgba(255, 255, 255, 0.1);
+  padding: --ddd-spacing-3;
+  background-color: var(--ddd-color-primary);
   height: auto;
   overflow: hidden;
        }
 
       details summary {
-  font-size: 18px;
-  padding: 10px 0;
+  font-size:--ddd-font-size-3xs;
+  padding: var(--ddd-spacing-3) 0;
   cursor: pointer;
-  font-weight: 600;
+  font-weight:--ddd-font-size-bold;
        }
 
       .desc {
-  font-size: 1rem;
-  color: white;
-  margin: 12px 0;
+  font-size: var(--ddd-font-size-base);
+  color: --ddd-theme-default-white;
+  margin:var(--ddd-spacing-3) 0;
        }
 
       .url {
   display: inline-block;
-  padding: 10px 14px;
-  margin: 10px auto;
-  font-weight: bold;
-  font-size: 1rem;
-  color: #fff;
-  border: 2px solid var(--themeColor);
-  border-radius: 10px;
+  padding: var(--ddd-spacing-3) var(--ddd-spacing-4);
+  margin: var(--ddd-spacing-3) auto;
+  font-weight:--ddd-font-weight-bold;
+  font-size: var(--ddd-font-size-base);
+  color:var(--ddd-color-white);
+  border: --ddd-border-sm;
+  border-radius: --ddd-radius-md;
   transition: all 0.3s ease-in-out;
-  background-color: transparent;
+  background-color:--ddd-theme-default-potential0;
        }
 
       .url:hover {
-  background-color: var(--themeColor);
-  color: #000;
+  background-color: var(--ddd-color-primary);
+  color:  var(--ddd-color-black);
   transform: scale(1.05);
        }
 
       .loading-spinner {
-  margin: 24px auto;
+  margin: var(--ddd-spacing-5) auto;
   border: 4px solid #ddd;
-  border-top: 4px solid var(--themeColor);
-  border-radius: 50%;
+  border-top: --ddd-border-lg;
+  border-radius: var(--ddd-border-radius-circle);
   width: 32px;
   height: 32px;
   animation: spin 1.5s linear infinite;
@@ -163,7 +163,7 @@ export class LinkPreviewCard extends DDDSuper(I18NMixin(LitElement)) {
       @media (max-width: 600px) {
   :host {
     max-width: 100%;
-    padding: 12px;
+    padding: --ddd-spacing-3;
        }
      }
   `];
